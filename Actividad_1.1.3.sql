@@ -140,8 +140,28 @@ ORDER BY fecha_ini_arriendo, nro_patente ASC;
 -----------sueldo base, bonificacion por utilidades..--------------
 -------------------------------------------------------------------
 
-SELECT * FROM empleado;
+SELECT 
+  
+    '31/10/2019' AS "FECHA PROCESO",
+    
+   
+    APPATERNO_EMP || ' ' || APMATERNO_EMP || ', ' || PNOMBRE_EMP || ' ' || SNOMBRE_EMP AS "EMPLEADO",
+    
+   
+    SUELDO_BASE AS "SUELDO BASE",
+    
+   
+    CASE 
+        WHEN SUELDO_BASE BETWEEN 320000 AND 450000 THEN 200000000 * 0.005
+        WHEN SUELDO_BASE BETWEEN 450001 AND 600000 THEN 200000000 * 0.0035
+        WHEN SUELDO_BASE BETWEEN 600001 AND 900000 THEN 200000000 * 0.0025
+        WHEN SUELDO_BASE BETWEEN 900001 AND 1800000 THEN 200000000 * 0.0015
+        WHEN SUELDO_BASE > 1800000 THEN 200000000 * 0.001
+        ELSE 0 
+    END AS "BONIFICACION POR UTILIDADES"
 
-SELECT TO_NUMBER(numrun_emp, '00.000.000') 
-FROM empleado;
+FROM EMPLEADO
+
+ORDER BY APPATERNO_EMP ASC;
+
 
