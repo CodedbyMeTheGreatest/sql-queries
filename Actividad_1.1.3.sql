@@ -123,15 +123,16 @@ CASE
 END
 "DIAS_ATRASO"
 FROM arriendo_camion
-WHERE CASE
-    WHEN dias_solicitados > (fecha_devolucion - fecha_ini_arriendo)
-    THEN dias_solicitados - (fecha_devolucion - fecha_ini_arriendo)
-    ELSE (fecha_devolucion - fecha_ini_arriendo) - dias_solicitados
-END != 0
-AND EXTRACT(MONTH FROM fecha_ini_arriendo) = EXTRACT(MONTH FROM ADD_MONTHS(SYSDATE,-1))
-AND EXTRACT(YEAR FROM fecha_ini_arriendo) = EXTRACT(YEAR FROM ADD_MONTHS(SYSDATE,-1))
-AND EXTRACT(MONTH FROM fecha_devolucion) = EXTRACT(MONTH FROM ADD_MONTHS(SYSDATE,-1))
-AND EXTRACT(YEAR FROM fecha_devolucion) = EXTRACT(YEAR FROM ADD_MONTHS(SYSDATE,-1))
+WHERE 
+    CASE
+        WHEN dias_solicitados > (fecha_devolucion - fecha_ini_arriendo)
+            THEN dias_solicitados - (fecha_devolucion - fecha_ini_arriendo)
+        ELSE (fecha_devolucion - fecha_ini_arriendo) - dias_solicitados
+    END != 0
+    AND EXTRACT(MONTH FROM fecha_ini_arriendo) = EXTRACT(MONTH FROM ADD_MONTHS(SYSDATE,-1))
+    AND EXTRACT(YEAR FROM fecha_ini_arriendo) = EXTRACT(YEAR FROM ADD_MONTHS(SYSDATE,-1))
+    AND EXTRACT(MONTH FROM fecha_devolucion) = EXTRACT(MONTH FROM ADD_MONTHS(SYSDATE,-1))
+    AND EXTRACT(YEAR FROM fecha_devolucion) = EXTRACT(YEAR FROM ADD_MONTHS(SYSDATE,-1))
 ORDER BY fecha_ini_arriendo, nro_patente ASC;
 
 -------------------------------------------------------------------
@@ -140,28 +141,63 @@ ORDER BY fecha_ini_arriendo, nro_patente ASC;
 -----------sueldo base, bonificacion por utilidades..--------------
 -------------------------------------------------------------------
 
-SELECT 
-  
-    '31/10/2019' AS "FECHA PROCESO",
-    
-   
-    APPATERNO_EMP || ' ' || APMATERNO_EMP || ', ' || PNOMBRE_EMP || ' ' || SNOMBRE_EMP AS "EMPLEADO",
-    
-   
-    SUELDO_BASE AS "SUELDO BASE",
-    
-   
-    CASE 
-        WHEN SUELDO_BASE BETWEEN 320000 AND 450000 THEN 200000000 * 0.005
-        WHEN SUELDO_BASE BETWEEN 450001 AND 600000 THEN 200000000 * 0.0035
-        WHEN SUELDO_BASE BETWEEN 600001 AND 900000 THEN 200000000 * 0.0025
-        WHEN SUELDO_BASE BETWEEN 900001 AND 1800000 THEN 200000000 * 0.0015
-        WHEN SUELDO_BASE > 1800000 THEN 200000000 * 0.001
-        ELSE 0 
-    END AS "BONIFICACION POR UTILIDADES"
+SELECT TO_CHAR(SYSDATE, 'MM/YYYY') "FECHA PROCESO",
+TO_CHAR(numrun_emp, '99G999G999')||'-'||dvrun_emp 
+"RUN EMPLEADO",
+pnombre_emp||' '||snombre_emp||' '||appaterno_emp||' '||apmaterno_emp 
+"NOMBRE EMPLEADO",
+TO_CHAR(sueldo_base, '$9G999G999') 
+"SUELDO BASE",
+TO_CHAR(CASE WHEN sueldo_base BETWEEN 320000 AND 450000 
+THEN (200000000 * 0.005)
+WHEN sueldo_base BETWEEN 450001 AND 600000 
+THEN (200000000 * 0.0035)
+WHEN sueldo_base BETWEEN 600001 AND 900000 
+THEN (200000000 * 0.0025)
+WHEN sueldo_base BETWEEN 900001 AND 1800000 
+THEN (200000000 * 0.0015)
+WHEN sueldo_base > 1800000 
+THEN (200000000 * 0.001)
+END, '$9G999G999') 
+"BONIFICACION POR UTILIDADES"
+FROM empleado
+ORDER BY appaterno_emp ASC;
 
-FROM EMPLEADO
+-------------------------------------------------------------------
+----------------------------CASO 7---------------------------------
+-------Consultamos el run, nombre, años de contrato,--------------- 
+---------valor movilizacion, bonif. extra de movilizacion----------
+----------------y el valor de movilizacion total.------------------
+-------------------------------------------------------------------
+SELECT * FROM empleado;
+SELECT * FROM comuna ORDER BY nombre_comuna ASC;
 
-ORDER BY APPATERNO_EMP ASC;
+SELECT numrun_emp||'-'||dvrun_emp
+"RUN EMPLEADO",
+pnombre_emp||' '||snombre_emp||' '||appaterno_emp||' '||apmaterno_emp 
+"NOMBRE EMPLEADO",
+ROUND(MONTHS_BETWEEN(SYSDATE, fecha_contrato)/12)
+"AÑOS CONTRATADO",
+TO_CHAR(sueldo_base, '$9G999G999') 
+"SUELDO BASE",
+TO_CHAR(ROUND(sueldo_base * (ROUND(MONTHS_BETWEEN(SYSDATE, fecha_contrato)/12)/100)), 
+'$9G999G999')
+"VALOR MOVILIZACION",
+TO_CHAR(CASE WHEN sueldo_base >= 450000 
+    THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,1)) / 100)
+WHEN sueldo_base < 450000 
+    THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,2)) / 100)
+END, '$9G999G999')
+"BONIF. EXTRA MOVILIZACION",
+TO_CHAR(ROUND(sueldo_base * (ROUND(MONTHS_BETWEEN(SYSDATE, fecha_contrato)/12)/100))
++ CASE WHEN sueldo_base >= 450000 
+    THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,1)) / 100) 
+WHEN sueldo_base < 450000 
+    THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,2)) / 100)
+END, '$9G999G999')
+"VALOR MOVILIZACION TOTAL"
+FROM empleado
+WHERE id_comuna in (117, 118, 120, 122, 126)
+ORDER BY appaterno_emp ASC;
 
-
+--117, 118, 120, 122, 126 -> codigos de las ciudades ('María Pinto', 'Curacaví', 'El Monte', 'Paine', 'Pirque').
