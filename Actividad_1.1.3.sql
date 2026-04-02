@@ -116,23 +116,20 @@ nro_patente,
 fecha_ini_arriendo,
 dias_solicitados,
 fecha_devolucion,
-CASE
-    WHEN dias_solicitados > (fecha_devolucion - fecha_ini_arriendo)
-    THEN dias_solicitados - (fecha_devolucion - fecha_ini_arriendo)
-    ELSE (fecha_devolucion - fecha_ini_arriendo) - dias_solicitados
+CASE WHEN dias_solicitados > (fecha_devolucion - fecha_ini_arriendo)
+THEN dias_solicitados - (fecha_devolucion - fecha_ini_arriendo)
+ELSE (fecha_devolucion - fecha_ini_arriendo) - dias_solicitados
 END
 "DIAS_ATRASO"
 FROM arriendo_camion
-WHERE 
-    CASE
-        WHEN dias_solicitados > (fecha_devolucion - fecha_ini_arriendo)
-            THEN dias_solicitados - (fecha_devolucion - fecha_ini_arriendo)
-        ELSE (fecha_devolucion - fecha_ini_arriendo) - dias_solicitados
-    END != 0
-    AND EXTRACT(MONTH FROM fecha_ini_arriendo) = EXTRACT(MONTH FROM ADD_MONTHS(SYSDATE,-1))
-    AND EXTRACT(YEAR FROM fecha_ini_arriendo) = EXTRACT(YEAR FROM ADD_MONTHS(SYSDATE,-1))
-    AND EXTRACT(MONTH FROM fecha_devolucion) = EXTRACT(MONTH FROM ADD_MONTHS(SYSDATE,-1))
-    AND EXTRACT(YEAR FROM fecha_devolucion) = EXTRACT(YEAR FROM ADD_MONTHS(SYSDATE,-1))
+WHERE CASE WHEN dias_solicitados > (fecha_devolucion - fecha_ini_arriendo)
+THEN dias_solicitados - (fecha_devolucion - fecha_ini_arriendo)
+ELSE (fecha_devolucion - fecha_ini_arriendo) - dias_solicitados
+END != 0
+AND EXTRACT(MONTH FROM fecha_ini_arriendo) = EXTRACT(MONTH FROM ADD_MONTHS(SYSDATE,-1))
+AND EXTRACT(YEAR FROM fecha_ini_arriendo) = EXTRACT(YEAR FROM ADD_MONTHS(SYSDATE,-1))
+AND EXTRACT(MONTH FROM fecha_devolucion) = EXTRACT(MONTH FROM ADD_MONTHS(SYSDATE,-1))
+AND EXTRACT(YEAR FROM fecha_devolucion) = EXTRACT(YEAR FROM ADD_MONTHS(SYSDATE,-1))
 ORDER BY fecha_ini_arriendo, nro_patente ASC;
 
 -------------------------------------------------------------------
@@ -184,16 +181,16 @@ TO_CHAR(ROUND(sueldo_base * (ROUND(MONTHS_BETWEEN(SYSDATE, fecha_contrato)/12)/1
 '$9G999G999')
 "VALOR MOVILIZACION",
 TO_CHAR(CASE WHEN sueldo_base >= 450000 
-    THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,1)) / 100)
+THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,1)) / 100)
 WHEN sueldo_base < 450000 
-    THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,2)) / 100)
+THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,2)) / 100)
 END, '$9G999G999')
 "BONIF. EXTRA MOVILIZACION",
 TO_CHAR(ROUND(sueldo_base * (ROUND(MONTHS_BETWEEN(SYSDATE, fecha_contrato)/12)/100))
 + CASE WHEN sueldo_base >= 450000 
-    THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,1)) / 100) 
+THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,1)) / 100) 
 WHEN sueldo_base < 450000 
-    THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,2)) / 100)
+THEN ROUND(sueldo_base * TO_NUMBER(SUBSTR(sueldo_base, 1,2)) / 100)
 END, '$9G999G999')
 "VALOR MOVILIZACION TOTAL"
 FROM empleado
