@@ -25,6 +25,38 @@ COMMIT;
 
 ROLLBACK TO A;
 
+
+--CASO 3 ACTIVIDAD 2.1
+
+DROP TABLE clientes_sin_arriendos;
+
+CREATE TABLE clientes_sin_arriendos
+(numrun_cli NUMBER(10) NOT NULL CONSTRAINT PK_CLIENTE_SIN_ARRIENDOS PRIMARY KEY,
+ dvrun_cli VARCHAR2(1) NOT NULL,
+ appaterno_cli VARCHAR2(30) NOT NULL,
+ apmaterno_cli VARCHAR2(30) NOT NULL,
+ pnombre_cli VARCHAR2(30) NOT NULL,
+ snombre_cli VARCHAR2(30),
+ direccion VARCHAR2(60) NOT NULL,
+ celular_cli NUMBER(15),
+ fono_fijo_cli NUMBER(15), 
+ renta NUMBER(7) NOT NULL,
+ fecha_nac_cli DATE,
+ id_comuna NUMBER(3),
+ id_tipo_cli VARCHAR2(1) NOT NULL,
+ id_estado_civil NUMBER(2) NOT NULL);
+
+INSERT INTO clientes_sin_arriendos
+SELECT * FROM cliente WHERE numrun_cli NOT IN 
+(SELECT numrun_cli FROM arriendo_camion
+WHERE EXTRACT(YEAR FROM fecha_ini_arriendo) 
+BETWEEN EXTRACT(YEAR FROM SYSDATE) - 2 AND EXTRACT(YEAR FROM SYSDATE) - 1
+);
+
+DELETE FROM CLIENTE WHERE numrun_cli IN(SELECT numrun_cli FROM clientes_sin_arriendos);
+
+SELECT * FROM CLIENTE;
+
 --Caso 4
 
 SELECT * FROM HIST_ARRIENDO_ANUAL_CAMION;
@@ -96,37 +128,6 @@ ROUND((sueldo_base *
 FROM EMPLEADO
 ORDER BY numrun_emp;
 --empleado -> valor anual
-
---CASO 3 ACTIVIDAD 2.1
-
-DROP TABLE clientes_sin_arriendos;
-
-CREATE TABLE clientes_sin_arriendos
-(numrun_cli NUMBER(10) NOT NULL CONSTRAINT PK_CLIENTE_SIN_ARRIENDOS PRIMARY KEY,
- dvrun_cli VARCHAR2(1) NOT NULL,
- appaterno_cli VARCHAR2(30) NOT NULL,
- apmaterno_cli VARCHAR2(30) NOT NULL,
- pnombre_cli VARCHAR2(30) NOT NULL,
- snombre_cli VARCHAR2(30),
- direccion VARCHAR2(60) NOT NULL,
- celular_cli NUMBER(15),
- fono_fijo_cli NUMBER(15), 
- renta NUMBER(7) NOT NULL,
- fecha_nac_cli DATE,
- id_comuna NUMBER(3),
- id_tipo_cli VARCHAR2(1) NOT NULL,
- id_estado_civil NUMBER(2) NOT NULL);
-
-INSERT INTO clientes_sin_arriendos
-SELECT * FROM cliente WHERE numrun_cli NOT IN 
-(SELECT numrun_cli FROM arriendo_camion
-WHERE EXTRACT(YEAR FROM fecha_ini_arriendo) 
-BETWEEN EXTRACT(YEAR FROM SYSDATE) - 2 AND EXTRACT(YEAR FROM SYSDATE) - 1
-);
-
-DELETE FROM CLIENTE WHERE numrun_cli IN(SELECT numrun_cli FROM clientes_sin_arriendos);
-
-SELECT * FROM CLIENTE;
 
 
 

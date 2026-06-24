@@ -1,4 +1,32 @@
----CASO 3 ACTIVIDAD 2.3
+-------------------
+---ACTIVIDAD 2.3---
+-------------------
+
+
+
+--CASO 1 
+
+CREATE INDEX IDX_PROD_INV_CLIENTES 
+ON PRODUCTO_INVERSION_CLIENTE(COD_PROD_INV);
+
+EXPLAIN PLAN FOR
+SELECT EXTRACT(YEAR FROM SYSDATE) "AÑO TRIBUTARIO",
+       TO_CHAR(c.numrun,'09G999G999') || '-' || UPPER(c.dvrun) "RUN CLIENTE",
+       INITCAP(c.pnombre || ' ' || SUBSTR(c.snombre,1,1) || '. ' || c.appaterno || ' ' || c.apmaterno) "NOMBRE CLIENTE",
+       COUNT(pic.nro_cliente) "TOTAL PROD. INV AFECTOS IMPTO",
+       LPAD(TO_CHAR(SUM(pic.monto_total_ahorrado),'$999G999G999'),21, ' ') "MONTO TOTAL AHORRADO"
+FROM cliente c JOIN producto_inversion_cliente pic
+ON c.nro_cliente=pic.nro_cliente
+WHERE pic.cod_prod_inv IN(30,35,40,45,50,55)
+HAVING COUNT( c.nro_cliente)   IN (SELECT MAX(COUNT(*))
+                 FROM producto_inversion_cliente
+                 GROUP BY nro_cliente)
+GROUP BY numrun,c.dvrun,c.pnombre,c.snombre,c.appaterno,c.apmaterno
+ORDER BY c.appaterno;
+
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+---CASO 3 
 
 CREATE INDEX IDX_CREDITO_CLIENTE ON CREDITO_CLIENTE (MONTO_CREDITO);
 
@@ -18,3 +46,6 @@ GROUP BY TO_CHAR(crc.fecha_otorga_cred,'MMYYYY'), c.nombre_credito
 ORDER BY TO_CHAR(crc.fecha_otorga_cred,'MMYYYY'), c.nombre_credito;
 
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+
+
