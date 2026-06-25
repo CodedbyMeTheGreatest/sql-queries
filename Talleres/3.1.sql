@@ -1,3 +1,32 @@
+--- CASO 1 ---
+
+--run de Marcos -> 11846972-5
+--run de Maria ->  18560875-5
+DECLARE
+    run VARCHAR2(12) := '&run';
+    nombre_emp VARCHAR2(50);
+    sueldo NUMBER(7);
+    bonif_extra NUMBER(6);
+BEGIN
+    SELECT TRIM(nombre_emp || ' ' || NVL(appaterno_emp, '') || ' ' || NVL(apmaterno_emp, '')),
+           sueldo_emp 
+    INTO nombre_emp, sueldo
+    FROM EMPLEADO
+    WHERE UPPER(TRIM(numrut_emp || '-' || dvrut_emp)) = UPPER(TRIM(run));
+    
+    bonif_extra := sueldo * 0.4;
+    
+    DBMS_OUTPUT.PUT_LINE('DATOS CALCULO BONIFICACION EXTRA DEL 40% DEL SUELDO');
+    DBMS_OUTPUT.PUT_LINE('Nombre del Empleado: ' || nombre_emp);
+    DBMS_OUTPUT.PUT_LINE('RUN: ' || run);
+    DBMS_OUTPUT.PUT_LINE('Sueldo: ' || sueldo);
+    DBMS_OUTPUT.PUT_LINE('Bonificación extra: ' || bonif_extra);
+END;
+/
+
+
+
+--- CASO 3 ---
 
 VARIABLE v_run        NUMBER
 VARIABLE v_porc_sim1  NUMBER
